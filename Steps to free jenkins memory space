@@ -1,0 +1,70 @@
+slow Jenkins is very often a disk space problem. Jenkins stores everything (builds, logs, artifacts, workspaces), and it grows FAST.
+Let’s safely free space step-by-step.
+
+Step 1 — Check disk usage first
+Run:
+df -h
+Look for the / partition. If it’s above 80–90%, Jenkins will slow down badly.
+Now check what is eating space:
+sudo du -h /var/lib/jenkins | sort -rh | head -20
+This shows the biggest folders inside Jenkins.
+Most of the time the space hogs are:
+	• old build history
+	• artifacts
+	• workspace folders
+	• logs
+
+Step 2 — Clean old build history (BIGGEST WIN)
+Jenkins stores every build forever unless you tell it not to.
+Delete old builds:
+sudo rm -rf /var/lib/jenkins/jobs/*/builds/*
+This removes:
+	• old console logs
+	• old build metadata
+	• test results
+👉 This alone can free GBs of space.
+
+Step 3 — Delete old Jenkins workspaces
+Each job keeps a workspace copy of your repo.
+Clean them:
+sudo rm -rf /var/lib/jenkins/workspace/*
+These can become HUGE.
+
+Step 4 — Remove old build artifacts
+Artifacts are files Jenkins keeps after builds (zips, jars, images).
+Clean them:
+sudo rm -rf /var/lib/jenkins/jobs/*/builds/*/archive/*
+
+Step 5 — Clear Jenkins logs
+Logs grow forever.
+sudo rm -rf /var/log/jenkins/*
+Also clean system logs:
+sudo journalctl --vacuum-time=7d
+This keeps only 7 days of logs.
+
+Step 6 — Clean package cache
+Amazon Linux keeps package cache files.
+sudo dnf clean all
+
+Step 7 — Restart Jenkins
+After cleanup:
+sudo systemctl restart jenkins
+You should notice the dashboard is much faster.
+
+Step 8 — VERY IMPORTANT (prevent this happening again)
+Inside Jenkins UI:
+	1. Open a job
+	2. Click Configure
+	3. Scroll to Build Discarder
+	4. Check:
+Discard old builds
+Set:
+	• Keep builds: 10
+	• Keep artifacts: 5
+Do this for your jobs so Jenkins auto-cleans itself.
+
+💡 Pro tip (huge performance boost)
+If your disk is small (like 8GB EC2), Jenkins will always struggle.
+Recommended minimum for Jenkins servers:
+	• 20–30GB disk
+2GB RAM
