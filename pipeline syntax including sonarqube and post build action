@@ -1,0 +1,61 @@
+pipeline {
+    agent any
+    
+    stages {
+        stage('checkout') {
+            steps {
+               git 'https://github.com/AdedolapoRaji/jenkins-java-demo.git'
+            }
+        }
+
+        stage('build') {
+            steps {
+                sh 'mvn clean compile'
+            }
+        }
+
+        stage('test') {
+            steps {
+                sh 'mvn test'
+            }
+        }
+
+        stage('package') {
+            steps {
+                sh 'mvn package'
+            }
+        }
+
+        stage('install') {
+            steps {
+                sh 'mvn install'
+            }
+        }
+
+        stage('code quality check') {
+            steps {
+                sh '''
+              mvn sonar:sonar \
+                -Dsonar.projectKey=Demo \
+                -Dsonar.host.url=http://13.50.247.6:9000 \
+                -Dsonar.login=b4dbfdb3f0cf5e2169dcf1e3abb9fd2a0ccd237e
+                '''
+            }
+        }
+
+        stage('artifact') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "The build is successful"
+        }
+        failure {
+            echo "The build failed"
+        }
+    }
+}
