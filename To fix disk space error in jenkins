@@ -1,0 +1,114 @@
+To fix disk space error in jenkins
+
+
+Step 1 — Open fstab again
+Run:
+
+sudo nano /etc/fstab
+
+You’ll see some existing lines.
+
+
+Do NOT edit the first lines.
+
+Your file should look similar to this (example):
+
+UUID=xxxx-xxxx  /        xfs   defaults,noatime  0 1
+UUID=xxxx-xxxx  /boot    xfs   defaults          0 2
+
+Step 2 — Fix the mistake
+You likely added the tmpfs line at the top or broke spacing.
+Scroll to the very bottom and add the line exactly like this:
+
+tmpfs   /tmp    tmpfs   defaults,size=2G   0 0
+
+Important:
+	• Each column must be separated by spaces or tabs
+	• The line must be at the bottom
+	• There must be no extra characters
+
+Your final file should look like:
+UUID=xxxx-xxxx  /        xfs   defaults,noatime  0 1
+UUID=xxxx-xxxx  /boot    xfs   defaults          0 2
+tmpfs   /tmp    tmpfs   defaults,size=2G   0 0
+
+Save:
+CTRL + O → Enter → CTRL + X
+
+
+Step 3 — Test fstab safely
+Before remounting, run:
+sudo mount -a
+If no error appears, the file is fixed ✅
+If you still see error, paste your fstab here and I’ll correct it.
+
+Step 4 — Remount /tmp
+sudo mount -o remount /tmp
+df -h /tmp
+You should now see ~2.0G.
+
+Step 5 — Restart Jenkins
+sudo systemctl restart jenkins
+Refresh Jenkins → node should become ONLINE 🎉
+
+Run sudo mount -a and tell me if it shows any error.
+
+
+POINT TO NOTE: SLAVE INSTANCE
+
+After configuring slave1 node if disk space is low, run the same step above on the slave instance
+Restart jenkins on the jenkins server
+Refresh jenkins
+
+
+
+
+
+OPTION 2
+
+
+Perfect — you’ve found the root cause 🎯
+Jenkins automatically puts the node offline when disk space is low to protect the server.
+Message means:
+Disk space below threshold (1 GB)
+Only 452 MB left
+So Jenkins refuses to run builds to avoid crashing your EC2.
+We need to free space.
+
+Step 1 — Check what is using space
+Run this on EC2:
+df -h
+You will likely see / almost full (common on t2.micro).
+
+Step 2 — Clean package cache (big win)
+Run:
+sudo dnf clean all
+
+Step 3 — Remove old Jenkins build cache
+Jenkins stores logs + old builds here:
+sudo du -sh /var/lib/jenkins/*
+Now clean workspace + old builds:
+sudo rm -rf /var/lib/jenkins/workspace/*
+sudo rm -rf /var/lib/jenkins/jobs/*/builds/*
+This alone usually frees 1–2 GB.
+
+Step 4 — Clean system logs
+Logs grow very fast on Amazon Linux:
+sudo journalctl --vacuum-time=1d
+
+Step 5 — Clean temp files
+sudo rm -rf /tmp/*
+
+Step 6 — Verify free space
+df -h
+You should now have >1 GB free.
+
+Step 7 — Restart Jenkins
+sudo systemctl restart jenkins
+Refresh Jenkins → Node should become ONLINE automatically.
+
+Important tip for t2.micro users 💡
+Jenkins + Maven needs more disk.
+If this keeps happening, increase EBS disk from 8GB → 20GB (takes 2 minutes in AWS console).
+
+Run the cleanup commands and tell me how much free space you now have 👍
