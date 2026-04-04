@@ -1,0 +1,42 @@
+Install maven git and tree on ec2 instance using bash
+
+
+Vim installation.sh
+
+Paste the script below
+
+
+
+#!/bin/bash
+
+echo "Updating Amazon Linux 2023..."
+sudo dnf update -y
+
+echo "Installing Git..."
+sudo dnf install git -y
+
+echo "Installing Java (Amazon Corretto 17)..."
+sudo dnf install java-17-amazon-corretto -y
+
+echo "Installing Maven..."
+sudo dnf install maven -y
+
+echo "Installing Tree..."
+sudo dnf install tree -y
+
+echo "Verifying installations..."
+echo "----------------------------"
+git --version
+java -version
+mvn -version
+tree --version
+
+echo "Tool setup completed successfully."
+
+
+
+:wq to save
+
+Launch installation by running
+
+Sh installation.sh
