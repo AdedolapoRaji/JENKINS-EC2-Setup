@@ -1,0 +1,79 @@
+Day 14: Jenkins
+
+Jenkins is a CI/CD tool used to automate the software development process.
+	• CI (Continuous Integration): Involves continuous build + continuous test. It merges old code with new code.
+		○ Before CI: Work was manual and time-consuming.
+		○ After CI: Everything is automated.
+	• CD (Continuous Delivery): Deployment manually to prod environment.
+	• CD (Continuous Deployment): Deployment automatically to prod environment.
+	
+Pipeline
+A pipeline is a step-by-step process to execute a task.
+	SOURCE CODE -> BUILD (convert from .java to .war) -> TEST -> DEPLOY
+
+Environments
+	1. DEV: Developers
+	2. QA: Testers
+	3. UAT: Client
+		○ Note: The above are called Pre-Prod or Non-Prod.
+	4. PROD: User (also called LIVE)
+
+Jenkins Characteristics
+	• Free and open source tool.
+	• Platform independent.
+	• Built on Java 11.
+	• Port number for Jenkins is 8080.
+
+Setup on EC2 Instance (Amazon Linux/RHEL)
+
+	1. Spin up EC2 instance.
+	2. sudo yum update -y
+	3. Install Git, Java-1.8.0, and Maven:
+		○ sudo yum install git java-1.8.0-openjdk maven -y
+	4. Getting the Repo:
+		○ Go to browser -> jenkins.io -> download -> under stable LTS -> select Red Hat Enterprise.
+		○ Run these commands:
+			§ sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
+			§ sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+	5. Download Java-11 and Jenkins:
+		○ sudo amazon-linux-extras install java-openjdk11 -y
+		○ sudo yum install jenkins -y
+		○ sudo update-alternatives --config java (Switch to the preferred version, which is 11 from the list).
+		○ java -version -> To confirm the version in use.
+	6. To Start Jenkins:
+		○ sudo systemctl start jenkins.service
+		○ sudo systemctl status jenkins.service
+
+To Connect and Launch Jenkins
+
+	1. Copy the Public IP from the EC2 instance.
+		○ Format: Public-IP:8080
+	2. Paste it in the browser (Sample: 35.180.225.237:8080).
+	3. Go to Linux and type:
+		○ sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+		○ A password will be generated.
+	4. Copy the password from step 3 to authenticate in step 2.
+	5. Wait for "Getting Started" to complete.
+		○ Create Admin user account.
+		○ Click on Save and Continue.
+
+Integrate Git & Maven with Jenkins
+
+A Simple CI/CD using Jenkins
+
+	1. In your Jenkins dashboard, click on New Item.
+	2. Enter Item Name: NETFLIX_CI_JOB.
+	3. Select Free style project -> OK.
+	4. Under GENERAL:
+		○ Go to Source Code Management.
+		○ Select Git.
+		○ Paste the Netflix repository URL from Git: https://github.com/devopsbyraham/jenkins-java-project.git
+		○ Branches Specifier: Confirm it is master (same as it is on Git).
+	5. Go to Build Steps -> Add build step -> Execute shell.
+		○ Type: mvn clean package
+		○ (Note: This is the single command to build the source code).
+	6. Click on Save.
+	7. Click on Build Now.
+		○ Check log below -> click on build history -> click on Console Output to see the BUILD SUCCESS.
+	Note: In the console output, navigate to the path to see the .war file:
+	/var/lib/jenkins/workspace/netflix/target/
