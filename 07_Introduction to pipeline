@@ -1,0 +1,108 @@
+
+DAY 18: JENKINS PIPELINE (Corrected)
+PIPELINE:
+	• Step-by-step execution of a particular process.
+	• Pipelines are syntax-based.
+	• We use the Groovy language to write pipelines.
+	• It is a DSL (Domain Specific Language).
+	• It provides a visualization of the process.
+FLOW: CODE $\rightarrow$ BUILD $\rightarrow$ TEST $\rightarrow$ ARTIFACT $\rightarrow$ DEPLOY
+
+TYPES:
+	1. Scripted (Older, more flexible/complex Groovy)
+	2. Declarative (Modern, stricter, and easier to read)
+
+1. BASIC DECLARATIVE SYNTAX
+Groovy
+
+pipeline {
+    agent any
+    stages {
+        stage('one') {
+            steps {
+                // Actions go here
+            }
+        }
+    }
+}
+	• P — pipeline (The root block)
+	• A — agent (Where to run the build)
+	• S — stages (The container for all stages)
+	• S — stage (The specific phase, e.g., 'Build')
+	• S — step (The actual command, e.g., sh 'mvn...')
+
+2. MULTI-STAGE PIPELINE
+Best for visualization and troubleshooting.
+Groovy
+
+pipeline {
+    agent any
+    stages {
+        stage('Checkout') {
+            steps {
+                git 'https://github.com/devops/jenkins.git'
+            }
+        }
+        stage('Build') {
+            steps {
+                sh 'mvn compile'
+            }
+        }
+        stage('Test') {
+            steps {
+                sh 'mvn test'
+            }
+        }
+        stage('Artifact') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+    }
+}
+
+3. PIPELINE AS CODE (Single Shell Optimization)
+Use this when you want to run multiple commands in one session using triple quotes (''').
+Groovy
+
+pipeline {
+    agent any
+    stages {
+        stage('Build & Package') {
+            steps {
+                git 'https://github.com/devops/jenkins.git'
+                sh '''
+                mvn compile
+                mvn test
+                mvn package
+                mvn install
+                mvn clean package
+                '''
+            }
+        }
+    }
+}
+
+4. MULTI-COMMAND / MULTI-STAGE
+A hybrid approach where stages are grouped by logic.
+Groovy
+
+pipeline {
+    agent any
+    stages {
+        stage('Source & Compile') {
+            steps {
+                git 'https://github.com/devops/jenkins.git'
+                sh 'mvn compile'
+            }
+        }
+        stage('Test & Package') {
+            steps {
+                sh 'mvn test'
+                sh 'mvn clean package'
+            }
+        }
+    }
+}
+
+From <https://gemini.google.com/app/b3e2d0289c3f4c14> 
