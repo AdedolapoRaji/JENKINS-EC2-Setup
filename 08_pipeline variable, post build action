@@ -1,0 +1,63 @@
+Jenkins pipeline variable, post build action 
+
+DAY 19
+
+PIPELINE: VARIABLE
+
+VARIABLES:
+Assigning value
+$a = 10$
+$name = raham$
+$a$ is the variable, $10$ is the value.
+	1. USER DEFINED VARIABLE
+a. local variable: We can define inside the job.
+b. global variable: We can define outside jobs.
+	2. JENKINS ENV. VARIABLE
+They are going to change as per build.
+
+HOW TO PASS VARIABLES ON PIPELINE
+HOW TO PASS VARIABLE IN THE JOB
+Groovy
+
+pipeline {
+    agent any
+    environment {
+        name = "raham"
+        loc = "Nigeria"
+    }
+    stages {
+        stage ('one') {
+            steps {
+                echo "Hi my name is ${name} and I'm from ${loc}"
+                sh 'env'
+            }
+        }
+    }
+}
+HOW TO DEFINE OUTSIDE THE JOB
+Manage Jenkins -> System -> Global Properties -> Fill in Name & Value -> Save
+
+POST BUILD ACTIONS
+Actions that we perform after the build.
+Types
+	• Always: If build fail or successful, it will run post actions.
+	• Success: Execute build only when successful.
+	• Failure: Execute build when build fails.
+SAMPLE
+Groovy
+
+pipeline {
+    agent any
+    stages {
+        stage ('one') {
+            steps {
+                sh 'env'
+            }
+        }
+    }
+    post {
+        always {
+            echo "the build is done"
+        }
+    }
+}
