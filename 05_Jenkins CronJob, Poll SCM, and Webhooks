@@ -1,0 +1,68 @@
+
+Day 16: Jenkins CronJob, Poll SCM, and Webhooks
+
+1. CronJob
+
+A CronJob is used to schedule a build to run at specific times automatically.
+	• Syntax: * * * * * (Five stars representing time units).
+	• Note: Use Server Time. Type date in your Linux terminal to see the current server time.
+	• Time Units:
+		1. Minute: (0-59)
+		2. Hour: (0-23)
+		3. Date: (1-31)
+		4. Month: (1-12)
+		5. Day: (0-6, where 0 is Sunday)
+	Example: To schedule a build for 11:05 on August 9th (if that day is a Friday/Day 5), the syntax would be: 5 11 8 9 5
+Steps to Create a CronJob:
+	1. Create a CI Job.
+	2. Go to Build Triggers.
+	3. Select Build Periodically.
+	4. Paste your Cron Syntax.
+	5. Save.
+	• Limitation: A CronJob will run automatically at the scheduled time regardless of whether the source code has actually changed.
+
+2. Poll SCM
+
+Builds will run only when code changes are detected in the Source Code Management (SCM) system.
+	• How it works: Jenkins "polls" (checks) the repository at a scheduled interval. If it sees a new commit, it triggers a build.
+	• Limitation: There is still a delay. If a developer pushes code at 7:00 AM but the Poll SCM is scheduled for 9:00 AM, the build won't start for two hours, leading to wasted time.
+Steps to Create Poll SCM:
+	1. Create a CI Job.
+	2. Go to Build Triggers.
+	3. Select Poll SCM.
+	4. Paste the Cron Syntax (defining how often Jenkins should check for changes).
+	5. Save.
+
+3. Webhooks
+A Webhook is the most efficient method. It triggers a build instantly as soon as code is committed (pushed) to GitHub.
+Step 1: Settings on GitHub
+	1. Go to your GitHub Repository -> Settings -> Webhooks.
+	2. Click Add webhook.
+	3. Payload URL: http://[Jenkins-IP]:8080/github-webhook/
+	4. Content type: application/json
+	5. Click Add webhook.
+Step 2: Steps on Jenkins
+	1. Go to your Jenkins Dashboard -> Create CI Job.
+	2. Go to Build Triggers.
+	3. Select GitHub hook trigger for GITScm polling.
+	4. Save.
+
+4. Remote Triggering
+
+This allows you to trigger a build from outside the Jenkins UI (e.g., using a URL in a browser or a script).
+	1. Create Job -> Build Triggers -> Trigger builds remotely.
+	2. Set an Authentication Token (e.g., raham).
+	3. Save.
+	4. To trigger the build, use this URL format:
+http://[IP]:8080/job/[Job-Name]/build?token=[Token-Name]
+(Example: http://35.180.225.237:8080/job/job-1/build?token=raham)
+
+5. Throttle Builds
+Used to restrict the number of builds allowed within a specific time interval to prevent server overload.
+	• Steps:
+		1. Create/Configure Job.
+		2. Select Throttle builds.
+		3. Set Number of builds (e.g., 3).
+		4. Set Time period (e.g., hours).
+		5. Save.
+	• Example: Setting 3 builds per hour ensures that even if 20 commits are made, Jenkins will only process them at a rate of approximately one build every 20 minutes.
