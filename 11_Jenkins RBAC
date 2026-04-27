@@ -1,0 +1,19 @@
+RBAC: ROLE BASED ACCESS CONTROL
+With RBAC we can give set of limited permissions to users.
+HOW TO CREATE USER
+	1. Dashboard -> manage Jenkins -> users -> Create user
+Create two users.
+THEN DOWNLOAD Role-based Authorization strategy plugins
+	2. Manage Jenkins -> Plugins -> Available plugins -> select Role-based Authorization plugin -> Install
+	3. Configure:
+Dashboard -> Manage Jenkins -> Security -> Security -> Authorization -> Role-based strategy -> save.
+	4. Manage and assign Roles:
+Dashboard -> manage and assign roles -> Manage role
+		○ role 1: fresher -> Read
+		○ role 2: Exp -> Administer
+Add -> save
+	5. click on Assign Roles
+Add user
+Type username -> OK -> select role
+	6. How to add additional permission for a user
+Dashboard -> manage Jenkins -> manage & assign roles -> Manage roles -> Select Build — To be able build jobs -> Select Create — To be able Create jobs -> Select configure — To be able to configure jobs
