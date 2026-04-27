@@ -1,0 +1,90 @@
+DAY 17
+
+JENKINS: MASTER & SLAVE
+
+	• It is used to distribute the builds.
+	• It reduces the load on Jenkins Server.
+	• Communication b/w master & slave is ssh
+	• We need to install java
+	• Slave can use any platform
+	• Label = way of assigning work for slave.
+
+
+Master and slave is used in a real time production environment. We don't run builds on the master node because it will crash. Instead we use slaves (worker nodes) to distribute the workload.
+
+	• Master: handles the UI, stores configuration and schedules builds.
+	• Slave: execute the actual build tasks assigned by the ma
+
+	
+STEPS
+
+	1. Create slave instance and install java 11
+amazon-linux-extras install java-openjdk11 -y
+	2. SET UP THE SLAVE SERVER.
+Dashboard -> Manage Jenkins -> Nodes & clouds -> New node -> node name: slave1 abc -> permanent agent -> Create
+	3. Set number of executors = 3
+Remote root directory: /tmp
+Labels: slave1
+Usage: select last option (expression matching...)
+Launch method: select last option (via SSH)
+Host: Paste the private IP of slave1 instance
+Credentials: click on add > Jenkins
+		○ Kind: Select SSH username with private key
+		○ Description: slave1
+		○ Username: ec2-user
+		○ Private key: Select enter directly > Add
+Paste the private key
+Click Add
+Go back to credentials > Select ec2-user
+Host key verifying strategy -> last option (non)
+Save
+	4. To BUILD ON SLAVE
+select Configure > check restrict where this Project can be run > Add slave1 label > Save
+
+LINKED JOBS
+
+If you have two jobs Job 1 and Job 2
+A scenario whereby after running Job 1, Job 2 must run automatically
+STEPS 2 CONFIGURE
+	• click Job 1
+	• Configure
+	• Post-build Actions
+	• Build other projects
+	• Select Job 2
+	• Save
+
+To CHECK BUILD HISTORY ON A PARTICULAR NODE
+	• Nodes > Built-in-node > build history
+	• Nodes > Slave1 > Build history
+	
+TO SEE THE NODE HAVING THE HIGHEST NODE
+
+Nodes -> slave1 -> Load statistics -> system info
+	NOTE POINT
+	The type of command used to install java, maven, git depends on the type of AMI you select either linux year, ubuntu etc.
+
+TROUBLESHOOTING
+
+Disk space too low on /tmp error
+cd /tmp
+rm -rf *
+u [bringing back the node to online on jenkins]
+
+	5. Click on Build now
+In case it fails
+install maven and git
+Yum install git java-1.8.0-openjdk maven -y
+	• cd /tmp/
+	• u
+	• TO RESTART SLAVE AGENT
+	• Select status
+	• Launch agent
+To CHECK WHY SLAVE Fails to Start click on log.
+
+	To INSTALL LINUX ON Amazon Linux 2023
+	Sudo dnf install java-11-amazon-corretto
+	To INSTALL mvn and Java 8 on 2023
+	Sudo dnf install java-1.8.0-amazon-corretto-devel
+
+
+
